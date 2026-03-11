@@ -14,12 +14,6 @@ class TaskController {
     }
 
     public function processRequest($method, $segments) {
-        if ($this->user->role !== 'admin' && !$this->user->permissions['access_tasks']) {
-            http_response_code(403);
-            echo json_encode(["message" => "Access denied. Module disabled for your account."]);
-            exit();
-        }
-
         $id = $segments[0] ?? null;
 
         if ($method === 'GET' && $id) {
@@ -78,12 +72,9 @@ class TaskController {
             $desc = $data->description ?? '';
             $rem_days = $data->reminder_start_days_before ?? 1;
             $rem_hours = $data->reminder_interval_hours ?? 3;
-            
-            // Check SMTP Reminder Permission
-            if ($this->user->role !== 'admin' && !$this->user->permissions['smtp_reminders']) {
-                $rem_days = 0;
-                $rem_hours = 0;
-            }
+            // SMTP Reminders allowed for all users
+            $rem_days = $data->reminder_start_days_before ?? 1;
+            $rem_hours = $data->reminder_interval_hours ?? 3;
 
             // Calculate first reminder time = deadline - X days
             if ($rem_hours > 0) {
@@ -130,12 +121,9 @@ class TaskController {
             $desc = $data->description ?? '';
             $rem_days = $data->reminder_start_days_before ?? 1;
             $rem_hours = $data->reminder_interval_hours ?? 3;
-            
-            // Check SMTP Reminder Permission
-            if ($this->user->role !== 'admin' && !$this->user->permissions['smtp_reminders']) {
-                $rem_days = 0;
-                $rem_hours = 0;
-            }
+            // SMTP Reminders allowed for all users
+            $rem_days = $data->reminder_start_days_before ?? 1;
+            $rem_hours = $data->reminder_interval_hours ?? 3;
 
             if ($rem_hours > 0) {
                 $deadline_time = strtotime($data->deadline);

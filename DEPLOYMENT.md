@@ -60,7 +60,7 @@ This guide will walk you through deploying your Personal Management System (PMS)
 ## 6. Setup Cron Jobs for Reminders
 You need a Cron Job to automatically check and send email reminders for tasks.
 1. In your cPanel, search for **Cron Jobs**.
-2. Set the interval. (e.g., Every hour: `0 * * * *`).
+2. Set the interval. (e.g., Every 5 minutes: `*/5 * * * *`).
 3. Set the command to execute your `reminders.php` script. The exact command depends on the hosting, but it generally looks like this:
    ```bash
    php -q /home/vol15_1/epizy.com/epiz_3456789/htdocs/cron/reminders.php

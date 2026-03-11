@@ -19,13 +19,6 @@ class ImportController {
     }
 
     public function processRequest($method, $segments) {
-        // Tied to transactions permission
-        if ($this->user->role !== 'admin' && !$this->user->permissions['access_transactions']) {
-            http_response_code(403);
-            echo json_encode(["message" => "Access denied. Transactions module disabled."]);
-            exit();
-        }
-
         $action = $segments[0] ?? null;
 
         if ($method === 'GET' && $action === 'template') {

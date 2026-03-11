@@ -24,20 +24,10 @@ class ReportController {
     }
 
     public function processRequest($method, $segments) {
-        if ($this->user->role !== 'admin' && !$this->user->permissions['access_reports']) {
-            http_response_code(403);
-            echo json_encode(["message" => "Access denied. Reports module disabled."]);
-            exit();
-        }
 
         $format = $segments[0] ?? null;
 
         if ($method === 'GET' && $format === 'pdf') {
-            if ($this->user->role !== 'admin' && !$this->user->permissions['export_pdf']) {
-                http_response_code(403);
-                echo "Access denied. PDF Export disabled.";
-                exit();
-            }
             $this->generatePDF();
         } elseif ($method === 'GET' && $format === 'excel') {
             $this->generateExcel();
