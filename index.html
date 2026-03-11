@@ -1,0 +1,436 @@
+<!DOCTYPE html>
+<html lang="en">
+
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Personal Management System</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/styles.css">
+    <!-- Font Awesome for Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  </head>
+
+  <body>
+
+    <!-- Background Animation Elements -->
+    <div class="bg-shape shape-1"></div>
+    <div class="bg-shape shape-2"></div>
+    <div class="bg-shape shape-3"></div>
+
+    <div id="app-container">
+      <!-- Notification Toast Container -->
+      <div id="toast-container"></div>
+
+      <!-- Auth View -->
+      <div id="auth-view" class="view active">
+        <div class="auth-box glass-panel">
+          <div class="auth-header">
+            <h2>Welcome to PMS</h2>
+            <p>Manage your life, tasks, and finances effortlessly.</p>
+          </div>
+
+          <div class="auth-tabs">
+            <button class="tab-btn active" data-target="login-form">Login</button>
+            <button class="tab-btn" data-target="register-form">Register</button>
+          </div>
+
+          <form id="login-form" class="auth-form active">
+            <div class="input-group">
+              <i class="fa-solid fa-envelope icon"></i>
+              <input type="email" id="login-email" placeholder="Email Address" required>
+            </div>
+            <div class="input-group">
+              <i class="fa-solid fa-lock icon"></i>
+              <input type="password" id="login-password" placeholder="Password" required>
+            </div>
+            <button type="submit" class="btn btn-primary btn-block">Sign In</button>
+          </form>
+
+          <form id="register-form" class="auth-form">
+            <div class="input-group">
+              <i class="fa-solid fa-user icon"></i>
+              <input type="text" id="reg-username" placeholder="Username" required>
+            </div>
+            <div class="input-group">
+              <i class="fa-solid fa-envelope icon"></i>
+              <input type="email" id="reg-email" placeholder="Email Address" required>
+            </div>
+            <div class="input-group">
+              <i class="fa-solid fa-lock icon"></i>
+              <input type="password" id="reg-password" placeholder="Password" required>
+            </div>
+            <button type="submit" class="btn btn-primary btn-block">Create Account</button>
+          </form>
+        </div>
+      </div>
+
+      <!-- Dashboard View (Protected) -->
+      <div id="dashboard-view" class="view">
+        <!-- Sidebar Navigation -->
+        <nav class="sidebar glass-panel">
+          <div class="brand">
+            <i class="fa-brands fa-slack brand-icon"></i>
+            <h3>PMS</h3>
+          </div>
+          <div class="user-info">
+            <div class="avatar"><i class="fa-solid fa-user"></i></div>
+            <span id="user-display-name">User</span>
+          </div>
+          <ul class="nav-links">
+            <li><a href="#" class="nav-link active" data-view="dashboard-home"><i class="fa-solid fa-house"></i>
+                Dashboard</a></li>
+            <li><a href="#" class="nav-link" data-view="tasks-view"><i class="fa-solid fa-list-check"></i> Tasks</a>
+            </li>
+            <li><a href="#" class="nav-link" data-view="transactions-view"><i class="fa-solid fa-wallet"></i>
+                Finances</a></li>
+            <li><a href="#" class="nav-link" data-view="reports-view"><i class="fa-solid fa-chart-pie"></i> Reports</a>
+            </li>
+
+            <!-- Admin Links -->
+            <li class="admin-only"
+              style="display: none; margin-top: 2rem; padding-top: 1rem; border-top: 1px solid var(--glass-border);">
+              <a href="#" class="nav-link" data-view="admin-users-view"><i class="fa-solid fa-users-gear"></i> Users</a>
+            </li>
+            <li class="admin-only" style="display: none;">
+              <a href="#" class="nav-link" data-view="admin-logs-view"><i class="fa-solid fa-server"></i> Logs</a>
+            </li>
+          </ul>
+          <div class="logout-container">
+            <button id="logout-btn" class="btn btn-outline"><i class="fa-solid fa-right-from-bracket"></i>
+              Logout</button>
+          </div>
+        </nav>
+
+        <!-- Main Content Area -->
+        <main class="main-content">
+
+          <!-- Home Section -->
+          <section id="dashboard-home" class="content-section active glass-panel fade-in">
+            <header class="section-header">
+              <h2>Dashboard Overview</h2>
+            </header>
+            <div class="dashboard-widgets">
+              <div class="widget card glass-panel">
+                <div class="widget-icon primary"><i class="fa-solid fa-list-check"></i></div>
+                <div class="widget-info">
+                  <h3>Total Tasks</h3>
+                  <p id="widget-tasks-count">0</p>
+                </div>
+              </div>
+              <div class="widget card glass-panel">
+                <div class="widget-icon success"><i class="fa-solid fa-arrow-trend-up"></i></div>
+                <div class="widget-info">
+                  <h3>Total Income</h3>
+                  <p id="widget-income-total">$0.00</p>
+                </div>
+              </div>
+              <div class="widget card glass-panel">
+                <div class="widget-icon danger"><i class="fa-solid fa-arrow-trend-down"></i></div>
+                <div class="widget-info">
+                  <h3>Total Expense</h3>
+                  <p id="widget-expense-total">$0.00</p>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <!-- Tasks Section -->
+          <section id="tasks-view" class="content-section glass-panel fade-in">
+            <header class="section-header">
+              <h2>Tasks Management</h2>
+              <button class="btn btn-primary" id="btn-add-task"><i class="fa-solid fa-plus"></i> New Task</button>
+            </header>
+
+            <div class="table-container">
+              <table class="data-table" id="tasks-table">
+                <thead>
+                  <tr>
+                    <th>Title</th>
+                    <th>Deadline</th>
+                    <th>Reminder Config</th>
+                    <th>Status / Action</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <!-- Tasks injected here -->
+                </tbody>
+              </table>
+            </div>
+          </section>
+
+          <!-- Finances Section -->
+          <section id="transactions-view" class="content-section glass-panel fade-in">
+            <header class="section-header">
+              <h2>Income & Expense</h2>
+              <div class="header-actions">
+                <button class="btn btn-outline" id="btn-import-excel"><i class="fa-solid fa-file-import"></i> Import
+                  Excel</button>
+                <button class="btn btn-primary" id="btn-add-tx"><i class="fa-solid fa-plus"></i> New
+                  Transaction</button>
+              </div>
+            </header>
+
+            <div class="table-container">
+              <table class="data-table" id="transactions-table">
+                <thead>
+                  <tr>
+                    <th>Date</th>
+                    <th>Type</th>
+                    <th>Category</th>
+                    <th>Amount</th>
+                    <th>Note</th>
+                    <th>Action</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <!-- Transactions injected here -->
+                </tbody>
+              </table>
+            </div>
+          </section>
+
+          <!-- Reports Section -->
+          <section id="reports-view" class="content-section glass-panel fade-in">
+            <header class="section-header">
+              <h2>Generated Reports</h2>
+            </header>
+            <div class="reports-container">
+              <form id="report-filter-form" class="filter-form card glass-panel">
+                <div class="form-row">
+                  <div class="input-group">
+                    <label>Start Date</label>
+                    <input type="date" id="rep-start">
+                  </div>
+                  <div class="input-group">
+                    <label>End Date</label>
+                    <input type="date" id="rep-end">
+                  </div>
+                  <div class="input-group">
+                    <label>Type</label>
+                    <select id="rep-type">
+                      <option value="">All</option>
+                      <option value="income">Income</option>
+                      <option value="expense">Expense</option>
+                    </select>
+                  </div>
+                  <div class="input-group align-bottom">
+                    <button type="button" class="btn btn-outline" id="btn-pdf"><i class="fa-solid fa-file-pdf"></i>
+                      Export PDF</button>
+                    <button type="button" class="btn btn-outline" id="btn-excel"><i class="fa-solid fa-file-excel"></i>
+                      Export Excel</button>
+                  </div>
+                </div>
+              </form>
+            </div>
+          </section>
+
+          <!-- Admin Users Section -->
+          <section id="admin-users-view" class="content-section glass-panel fade-in">
+            <header class="section-header">
+              <h2>Manage Users & Permissions</h2>
+            </header>
+            <div class="table-container">
+              <table class="data-table" id="admin-users-table">
+                <thead>
+                  <tr>
+                    <th>ID / Username</th>
+                    <th>Email</th>
+                    <th>Role</th>
+                    <th>Permissions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <!-- Users injected here -->
+                </tbody>
+              </table>
+            </div>
+          </section>
+
+          <!-- Admin Logs Section -->
+          <section id="admin-logs-view" class="content-section glass-panel fade-in">
+            <header class="section-header">
+              <h2>System Logs</h2>
+              <div class="header-actions">
+                <select id="log-type-selector" class="btn btn-outline" style="padding: 0.5rem 1rem;">
+                  <option value="errors">Error Logs</option>
+                  <option value="actions">User Action Logs</option>
+                  <option value="smtp">SMTP Email Logs</option>
+                </select>
+                <button class="btn btn-primary" id="btn-refresh-logs"><i class="fa-solid fa-rotate-right"></i>
+                  Refresh</button>
+              </div>
+            </header>
+            <div class="table-container" style="max-height: 60vh; overflow-y: auto;">
+              <table class="data-table" id="admin-logs-table">
+                <thead>
+                  <tr id="logs-table-header">
+                    <!-- Dynamic Headers -->
+                  </tr>
+                </thead>
+                <tbody>
+                  <!-- Logs injected here -->
+                </tbody>
+              </table>
+            </div>
+          </section>
+
+        </main>
+      </div>
+    </div>
+
+    <!-- Modals -->
+
+    <!-- Task Modal -->
+    <div id="task-modal" class="modal">
+      <div class="modal-content glass-panel">
+        <span class="close-modal">&times;</span>
+        <h3 id="task-modal-title">New Task</h3>
+        <form id="task-form">
+          <input type="hidden" id="task-id">
+          <div class="input-group">
+            <label>Title</label>
+            <input type="text" id="task-title" required>
+          </div>
+          <div class="input-group">
+            <label>Description</label>
+            <textarea id="task-desc" rows="3"></textarea>
+          </div>
+          <div class="input-group">
+            <label>Deadline</label>
+            <input type="datetime-local" id="task-deadline" required>
+          </div>
+          <div class="form-row">
+            <div class="input-group">
+              <label>Start Reminder (Days before)</label>
+              <input type="number" id="task-rem-days" value="1" min="0">
+            </div>
+            <div class="input-group">
+              <label>Reminder Interval (Hours)</label>
+              <input type="number" id="task-rem-hours" value="3" min="0">
+            </div>
+          </div>
+          <button type="submit" class="btn btn-primary btn-block">Save Task</button>
+        </form>
+      </div>
+    </div>
+
+    <!-- Transaction Modal -->
+    <div id="tx-modal" class="modal">
+      <div class="modal-content glass-panel">
+        <span class="close-modal">&times;</span>
+        <h3 id="tx-modal-title">New Transaction</h3>
+        <form id="tx-form">
+          <input type="hidden" id="tx-id">
+          <div class="form-row">
+            <div class="input-group">
+              <label>Type</label>
+              <select id="tx-type" required>
+                <option value="expense">Expense</option>
+                <option value="income">Income</option>
+              </select>
+            </div>
+            <div class="input-group">
+              <label>Date</label>
+              <input type="date" id="tx-date" required>
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="input-group">
+              <label>Amount</label>
+              <input type="number" step="0.01" id="tx-amount" required>
+            </div>
+            <div class="input-group">
+              <label>Category</label>
+              <input type="text" id="tx-category" placeholder="E.g. Food, Salary" required>
+            </div>
+          </div>
+          <div class="input-group">
+            <label>Note / Type of Expense</label>
+            <input type="text" id="tx-note" placeholder="E.g. Loss, Mandatory, Daily expense">
+          </div>
+          <button type="submit" class="btn btn-primary btn-block">Save Transaction</button>
+        </form>
+      </div>
+    </div>
+
+    <!-- Import Excel Modal -->
+    <div id="import-modal" class="modal">
+      <div class="modal-content glass-panel" style="max-width: 600px;">
+        <span class="close-modal">&times;</span>
+        <h3>Import Income/Expense Data</h3>
+        <p>Upload your previous income Excel file here. <a href="#" id="link-template">Download Template</a></p>
+        <form id="import-form">
+          <div class="input-group">
+            <input type="file" id="import-file" accept=".xlsx, .xls">
+          </div>
+          <button type="submit" class="btn btn-primary">Preview Data</button>
+        </form>
+
+        <div id="import-preview-section" style="display: none; margin-top: 1rem;">
+          <h4>Preview</h4>
+          <div class="table-container" style="max-height: 200px; overflow-y: auto;">
+            <table class="data-table" id="import-preview-table">
+              <thead>
+                <tr>
+                  <th>Date</th>
+                  <th>Type</th>
+                  <th>Amount</th>
+                  <th>Category</th>
+                </tr>
+              </thead>
+              <tbody></tbody>
+            </table>
+          </div>
+          <button id="btn-confirm-import" class="btn btn-success btn-block" style="margin-top: 1rem;">Confirm &
+            Save</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Permissions Modal -->
+    <div id="permissions-modal" class="modal">
+      <div class="modal-content glass-panel" style="max-width: 400px;">
+        <span class="close-modal">&times;</span>
+        <h3>Edit Base Permissions</h3>
+        <p style="margin-bottom: 1rem; color: var(--text-muted);" id="perm-user-name"></p>
+        <form id="permissions-form">
+          <input type="hidden" id="perm-user-id">
+
+          <div class="input-group" style="flex-direction: row; gap: 10px; align-items: center; margin-bottom: 15px;">
+            <input type="checkbox" id="perm-tasks" style="width: auto; margin-top: 3px;">
+            <label style="margin-bottom: 0;">Access Tasks Module</label>
+          </div>
+          <div class="input-group" style="flex-direction: row; gap: 10px; align-items: center; margin-bottom: 15px;">
+            <input type="checkbox" id="perm-tx" style="width: auto; margin-top: 3px;">
+            <label style="margin-bottom: 0;">Access Finances Module</label>
+          </div>
+          <div class="input-group" style="flex-direction: row; gap: 10px; align-items: center; margin-bottom: 15px;">
+            <input type="checkbox" id="perm-rep" style="width: auto; margin-top: 3px;">
+            <label style="margin-bottom: 0;">Access Reports Module</label>
+          </div>
+          <div class="input-group" style="flex-direction: row; gap: 10px; align-items: center; margin-bottom: 15px;">
+            <input type="checkbox" id="perm-pdf" style="width: auto; margin-top: 3px;">
+            <label style="margin-bottom: 0;">Allow PDF Generation</label>
+          </div>
+          <div class="input-group" style="flex-direction: row; gap: 10px; align-items: center; margin-bottom: 25px;">
+            <input type="checkbox" id="perm-smtp" style="width: auto; margin-top: 3px;">
+            <label style="margin-bottom: 0;">Allow SMTP Automation</label>
+          </div>
+
+          <button type="submit" class="btn btn-primary btn-block">Save Configuration</button>
+        </form>
+      </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="js/modules/api.js"></script>
+    <script src="js/modules/ui.js"></script>
+    <script src="js/modules/auth.js"></script>
+    <script src="js/modules/tasks.js"></script>
+    <script src="js/modules/transactions.js"></script>
+    <script src="js/modules/admin.js"></script>
+    <script src="js/app.js"></script>
+  </body>
+
+</html>

@@ -1,0 +1,8 @@
+/vendor/
+.env
+composer.phar
+router.php
+test_db.php
+init_db.php
+/api/.htaccess
+
