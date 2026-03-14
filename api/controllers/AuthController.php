@@ -26,7 +26,7 @@ class AuthController {
 
     private function register() {
         $data = json_decode(file_get_contents("php://input"));
-
+        error_log($data);
         if (!empty($data->username) && !empty($data->email) && !empty($data->password)) {
             // Check if email exists
             $query = "SELECT id FROM users WHERE email = :email LIMIT 1";

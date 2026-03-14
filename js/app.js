@@ -1,10 +1,16 @@
-// Initialize Applcation
+window.onerror = function (message, source, lineno, colno) {
+  fetch('/pms/api/log-js-error.php', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ message, source, lineno, colno })
+  });
+};
 
-document.addEventListener('DOMContentLoaded', () => {
-  // 1. Init UI components (Modals)
+document.addEventListener('DOMContentLoaded', async () => {
+  // Init UI
   ui.initModals();
 
-  // 2. Navigation
+  // Navigation
   document.querySelectorAll('.nav-link').forEach(link => {
     link.addEventListener('click', (e) => {
       e.preventDefault();
@@ -13,39 +19,43 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   });
 
-  // 3. Init Modules
+  // Initialize API & Modules
+  await initAPI();
+
   auth.init();
   tasks.init();
   transactions.init();
 
-  // 4. Check Auth and Load Data
-  // The following block seems to be a routing configuration that was intended to be added.
-  // Assuming it should be part of a UI or routing module initialization,
-  // but without context, it's placed here as per the provided "Code Edit" structure.
-  // Note: The provided "Code Edit" had a syntax error at the end of this block.
-  // It has been corrected to maintain the original `if (auth.checkAuth())` structure.
-  // If this routing configuration belongs elsewhere (e.g., in a `ui.js` file or a specific routing module),
-  // please provide more context for a precise placement.
-
-  // Example routing configuration (as provided in the "Code Edit")
-  // This block is syntactically incomplete as a standalone statement here.
-  // It looks like it's meant to be part of an object definition or a function call.
-  // For the purpose of faithfully incorporating the provided text, it's placed here.
-  // If this is meant to be part of a `ui.routes` object, for example, the context is missing.
-  /*
-            'login-view': { route: 'login', title: 'Login - PMS' },
-            'register-view': { route: 'register', title: 'Register - PMS' },
-            'dashboard-view': { route: 'dashboard', title: 'Dashboard - PMS', requiresAuth: true },
-            'tasks-view': { route: 'tasks', title: 'Tasks - PMS', requiresAuth: true },
-            'transactions-view': { route: 'finances', title: 'Finances - PMS', requiresAuth: true },
-            'reports-view': { route: 'reports', title: 'Reports - PMS', requiresAuth: true },
-            'admin-users-view': { route: 'admin-users', title: 'Manage Users - PMS', requiresAuth: true },
-            'admin-logs-view': { route: 'admin-logs', title: 'System Logs - PMS', requiresAuth: true }
-        };
-  */
-
+  // Load Data only if authenticated
   if (auth.checkAuth()) {
-    tasks.loadTasks();
-    transactions.loadTransactions();
+    await tasks.loadTasks();
+    await transactions.loadTransactions();
   }
+
+
+  const sidebarToggle = document.getElementById('sidebar-toggle');
+  const dashboardView = document.getElementById('dashboard-view');
+  const sidebarIcon = sidebarToggle.querySelector('i');
+
+
+  // Close sidebar when clicking outside
+  document.addEventListener('click', (e) => {
+    if (window.innerWidth <= 768 && dashboardView.classList.contains('sidebar-open')) {
+      const sidebar = document.querySelector('.sidebar');
+      if (!sidebar.contains(e.target) && !sidebarToggle.contains(e.target)) {
+        dashboardView.classList.remove('sidebar-open');
+      }
+    }
+  });
+
+  sidebarToggle.addEventListener('click', () => {
+    dashboardView.classList.toggle('sidebar-open');
+  
+    if (dashboardView.classList.contains('sidebar-open')) {
+      sidebarIcon.classList.replace('fa-bars', 'fa-xmark');
+    } else {
+      sidebarIcon.classList.replace('fa-xmark', 'fa-bars');
+    }
+  });
+
 });

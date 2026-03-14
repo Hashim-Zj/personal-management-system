@@ -46,6 +46,13 @@ const tasks = {
     try {
       const data = await api.get('/tasks');
       const tbody = document.querySelector('#tasks-table tbody');
+
+      if (!Array.isArray(data) || data.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="4" style="text-align:center;">No tasks found.</td></tr>';
+        document.getElementById('widget-tasks-count').innerText = 0;
+        return;
+      }
+
       tbody.innerHTML = '';
 
       let openTasks = 0;

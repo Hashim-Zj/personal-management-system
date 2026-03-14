@@ -1,5 +1,3 @@
-// js/modules/admin.js
-
 class AdminModule {
   constructor() {
     this.usersTableBody = document.querySelector('#admin-users-table tbody');

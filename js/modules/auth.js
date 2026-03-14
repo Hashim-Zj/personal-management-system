@@ -23,12 +23,9 @@ const auth = {
       const password = document.getElementById('login-password').value;
 
       try {
-        console.log('Start LOgin with:',email,'and pass ',password);
         const res = await api.post('/auth/login', { email, password });
-        console.log('Login response:', res); // <-- log the response
         this.handleLoginSuccess(res.token, res.user);
       } catch (error) {
-        console.log('Login error:', error.response ? error.response.data : error);
         ui.showToast(error.message, 'error');
       }
     });
@@ -78,14 +75,7 @@ const auth = {
     if (token && user) {
       document.getElementById('user-display-name').innerText = user.username;
 
-      // Admin Sidebar Links Toggle
-      const adminLinks = document.querySelectorAll('.admin-only');
-      if (user.role === 'admin') {
-        adminLinks.forEach(link => link.style.display = 'block');
-      } else {
-        adminLinks.forEach(link => link.style.display = 'none');
-      }
-
+      // Switch to dashboard view
       ui.switchView('dashboard-view');
       return true;
     } else {
