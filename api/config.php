@@ -6,5 +6,5 @@ $dotenv = Dotenv\Dotenv::createImmutable(__DIR__ . '/../');
 $dotenv->safeLoad();
 
 echo json_encode([
-  'API_URL' => $_ENV['API_URL'] ?? 'http://localhost/api/index.php'
+  'API_URL' => $_ENV['API_URL'] ?? 'http://localhost/PMS/api/index.php'
 ]);

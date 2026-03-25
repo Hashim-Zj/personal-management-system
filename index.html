@@ -9,6 +9,51 @@
   <link rel="stylesheet" href="css/styles.css">
   <!-- Font Awesome for Icons -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+  <!-- Favicon -->
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='64' height='64' viewBox='0 0 64 64'%3E
+  %3Crect width='64' height='64' fill='white'/%3E
+  %3Ccircle cx='32' cy='28' r='14' fill='%23007acc'/%3E
+  %3Ccircle cx='32' cy='28' r='7' fill='white'/%3E
+  %3Cg transform='translate(50 50) scale(0.4)'%3E
+    %3Ccircle cx='0' cy='0' r='8' fill='%23007acc'/%3E
+    %3Cpath d='M-4 0 h2 M2 0 h2 M0 -4 v2 M0 2 v2 M-2 -2 l1 1 M2 -2 l-1 1 M-2 2 l1 -1 M2 2 l-1 -1' stroke='white' stroke-width='1'/%3E
+  %3C/g%3E
+%3C/svg%3E" type="image/svg+xml">
+  <script>
+    (() => {
+      const baseSvg = `data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='64' height='64' viewBox='0 0 64 64'%3E
+    %3Crect width='64' height='64' fill='white'/%3E
+    %3Ccircle cx='32' cy='28' r='14' fill='%23007acc'/%3E
+    %3Ccircle cx='32' cy='28' r='7' fill='white'/%3E`;
+
+      const gearPaths = [
+        "%3Cg transform='translate(50 50) scale(0.4) rotate(0)'%3E%3Ccircle cx='0' cy='0' r='8' fill='%23007acc'/%3E%3Cpath d='M-4 0 h2 M2 0 h2 M0 -4 v2 M0 2 v2 M-2 -2 l1 1 M2 -2 l-1 1 M-2 2 l1 -1 M2 2 l-1 -1' stroke='white' stroke-width='1'/%3E%3C/g%3E",
+        "%3Cg transform='translate(50 50) scale(0.4) rotate(30)'%3E%3Ccircle cx='0' cy='0' r='8' fill='%23007acc'/%3E%3Cpath d='M-4 0 h2 M2 0 h2 M0 -4 v2 M0 2 v2 M-2 -2 l1 1 M2 -2 l-1 1 M-2 2 l1 -1 M2 2 l-1 -1' stroke='white' stroke-width='1'/%3E%3C/g%3E",
+        "%3Cg transform='translate(50 50) scale(0.4) rotate(60)'%3E%3Ccircle cx='0' cy='0' r='8' fill='%23007acc'/%3E%3Cpath d='M-4 0 h2 M2 0 h2 M0 -4 v2 M0 2 v2 M-2 -2 l1 1 M2 -2 l-1 1 M-2 2 l1 -1 M2 2 l-1 -1' stroke='white' stroke-width='1'/%3E%3C/g%3E",
+        "%3Cg transform='translate(50 50) scale(0.4) rotate(90)'%3E%3Ccircle cx='0' cy='0' r='8' fill='%23007acc'/%3E%3Cpath d='M-4 0 h2 M2 0 h2 M0 -4 v2 M0 2 v2 M-2 -2 l1 1 M2 -2 l-1 1 M-2 2 l1 -1 M2 2 l-1 -1' stroke='white' stroke-width='1'/%3E%3C/g%3E"
+      ];
+
+      let i = 0;
+      const link = document.querySelector("link[rel*='icon']") || document.createElement('link');
+      link.rel = 'icon';
+      document.head.appendChild(link);
+
+      function updateFavicon() {
+        link.href = `data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='64' height='64' viewBox='0 0 64 64'%3E
+      %3Crect width='64' height='64' fill='white'/%3E
+      %3Ccircle cx='32' cy='28' r='14' fill='%23007acc'/%3E
+      %3Ccircle cx='32' cy='28' r='7' fill='white'/%3E
+      ${gearPaths[i]}
+      %3C/svg%3E`;
+        i = (i + 1) % gearPaths.length;
+      }
+
+      setInterval(updateFavicon, 150);
+      updateFavicon();
+    })();
+  </script>
+
 </head>
 
 <body>

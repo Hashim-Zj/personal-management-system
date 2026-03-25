@@ -3,6 +3,7 @@
 require_once __DIR__ . '/../vendor/autoload.php';
 require_once __DIR__ . '/../api/utils/Logger.php';
 require_once __DIR__ . '/../api/config/database.php';
+set_time_limit(0);
 
 use PHPMailer\PHPMailer\PHPMailer;
 use PHPMailer\PHPMailer\Exception;
@@ -61,28 +62,28 @@ foreach ($tasksToRemind as $task) {
 
 function sendReminderEmail($task)
 {
-  if (!isset($_ENV['SMTP_HOST']) || empty($_ENV['SMTP_HOST'])) {
-    // Fallback to basic mail if no SMTP configured
-    $subject = "Task Reminder: " . $task['title'];
-    $message = "Hello " . $task['username'] . ",\n\nThis is a reminder for your task: " . $task['title'] . "\nDeadline: " . $task['deadline'] . "\n\nDescription:\n" . $task['description'] . "\n\nBest,\nPMS System";
-    $headers = "From: no-reply@pms.local\r\n";
+  $email = $task['email'];
 
-    $to = $task['email'];
-    $success = @mail($to, $subject, $message, $headers);
-    if ($success) {
-      Logger::smtp($to, $subject, 'success', null, $task['user_id'], $task['id']);
-
-      $msg = "Reminder sent to {$task['email']} for task '{$task['title']}' [Status: success]";
-      Logger::cron($msg);
-    } else {
-      Logger::smtp($to, $subject, 'failed', 'Native PHP mail() failed', $task['user_id'], $task['id']);
-
-      $msg = "Reminder failed to {$task['email']} for task '{$task['title']}' [Error: {$errorMsg}]";
-      Logger::cron($msg);
-    }
-    return $success;
+  // 1. Basic email format validation
+  if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+    Logger::cron("Invalid email format skipped: {$email} for task '{$task['title']}'");
+    return false;
   }
 
+  // 2. Optional: Check if email domain exists (DNS MX record)
+  $domain = substr(strrchr($email, "@"), 1);
+  if ($domain && !checkdnsrr($domain, "MX")) {
+    Logger::cron("Email domain not found or no MX record: {$email} for task '{$task['title']}'");
+    return false;
+  }
+
+  // 3. Skip sending if SMTP is not configured
+  if (empty($_ENV['SMTP_HOST'])) {
+    Logger::cron("SMTP not configured, skipping email for task '{$task['title']}' to {$email}");
+    return false;
+  }
+
+  // 4. Prepare SMTP email using PHPMailer
   $mail = new PHPMailer(true);
   try {
     $mail->isSMTP();
@@ -96,17 +97,62 @@ function sendReminderEmail($task)
     $mail->setFrom($_ENV['SMTP_USER'], 'PMS System');
     $mail->addAddress($task['email'], $task['username']);
 
-    $mail->isHTML(false);
+    // Prepare variables for HTML email
+    $username    = htmlspecialchars($task['username']);
+    $title       = htmlspecialchars($task['title']);
+    $deadline    = htmlspecialchars($task['deadline']);
+    $description = nl2br(htmlspecialchars($task['description']));
+
+    $now = new DateTime();
+    $deadlineDate = new DateTime($task['deadline']);
+    $interval = $now->diff($deadlineDate);
+    $daysLeft = $interval->format('%r%a');
+
+    // Compose HTML email
+    $htmlBody = "
+        <html>
+        <head>
+          <style>
+            body { font-family: Arial, sans-serif; color: #333; }
+            .header { background: #007acc; color: white; padding: 10px; font-size: 20px; font-weight: bold; }
+            .content { padding: 20px; }
+            .footer { font-size: 12px; color: #666; padding: 10px; text-align: center; }
+            table { border-collapse: collapse; width: 100%; }
+            th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
+            th { background-color: #007acc; color: white; }
+          </style>
+        </head>
+        <body>
+          <div class='header'>Task Reminder</div>
+          <div class='content'>
+            <p>Hello <strong>{$username}</strong>,</p>
+            <p>This is a reminder for your task:</p>
+            <table>
+              <tr><th>Title</th><td>{$title}</td></tr>
+              <tr><th>Deadline</th><td>{$deadline}</td></tr>
+              <tr><th>Days Remaining</th><td>{$daysLeft}</td></tr>
+              <tr><th>Description</th><td>{$description}</td></tr>
+            </table>
+            <p>Best regards,<br>PMS System</p>
+          </div>
+          <div class='footer'>Please do not reply to this automated email.</div>
+        </body>
+        </html>
+        ";
+
+    $mail->isHTML(true);
     $mail->Subject = 'Task Reminder: ' . $task['title'];
-    $mail->Body    = "Hello " . $task['username'] . ",\n\nThis is a reminder for your task: " . $task['title'] . "\nDeadline: " . $task['deadline'] . "\n\nDescription:\n" . $task['description'] . "\n\nBest,\nPMS System";
+    $mail->Body    = $htmlBody;
 
     $mail->send();
-    Logger::smtp($task['email'], $mail->Subject, 'success', null, $task['user_id'], $task['id']);
+    Logger::smtp($email, $mail->Subject, 'success', null, $task['user_id'], $task['id']);
+    Logger::cron("Reminder sent to {$email} for task '{$task['title']}' [Status: success]");
+
     return true;
   } catch (Exception $e) {
     $errorMsg = $mail->ErrorInfo ?: $e->getMessage();
-    Logger::smtp($task['email'], 'Task Reminder', 'failed', $errorMsg, $task['user_id'], $task['id']);
-    Logger::cron("Message could not be sent. Mailer Error: {$errorMsg}");
+    Logger::smtp($email, 'Task Reminder', 'failed', $errorMsg, $task['user_id'], $task['id']);
+    Logger::cron("Reminder failed to {$email} for task '{$task['title']}' [Error: {$errorMsg}]");
     return false;
   }
 }

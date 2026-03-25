@@ -1,7 +1,7 @@
 let API_URL = '';
 
 async function loadConfig() {
-  const res = await fetch('/api/config.php');
+  const res = await fetch('/PMS/api/config.php');
   const data = await res.json();
   API_URL = data.API_URL;
 }
